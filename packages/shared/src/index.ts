@@ -16,3 +16,11 @@ export type Deployment = {
     status: DeploymentStatus;
     url?: string;
 };
+
+export type CreateProjectInput = {
+    name: string;
+};
+
+
+
+
