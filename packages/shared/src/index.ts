@@ -21,6 +21,11 @@ export type CreateProjectInput = {
     name: string;
 };
 
+export type projectFile = {
+    path: string,
+    content: string,
+}
 
+export type projectFiles = projectFile[]
 
 
