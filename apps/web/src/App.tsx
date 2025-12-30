@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { createProject, getProjects } from "./api/projects";
 import { saveProjectFiles, loadProjectFiles } from "./api/files";
 import type { Project, projectFiles } from "@boltyy/shared";
+import { PreviewPane } from "./components/previewPane";
+
+
 
 function FileEditor({ projectId }: { projectId: string }) {
   const [content, setContent] = useState("");
@@ -46,10 +49,51 @@ function FileEditor({ projectId }: { projectId: string }) {
   );
 }
 
+// function FileEditor({ projectId }: { projectId: string }) {
+//   const [content, setContent] = useState("");
+
+//   useEffect(() => {
+//     loadProjectFiles(projectId).then((files) => {
+//       if (!Array.isArray(files)) {
+//         console.error("Expected array, got:", files);
+//         return;
+//       }
+
+//       const appFile = files.find(
+//         (f) => f.path === "src/App.tsx"
+//       );
+
+//       if (appFile) setContent(appFile.content);
+//     });
+//   }, [projectId]);
+
+//   async function save() {
+//     const files: projectFiles = [
+//       {
+//         path: "src/App.tsx",
+//         content,
+//       },
+//     ];
+
+//     await saveProjectFiles(projectId, files);
+//   }
+
+//   return (
+//     <div className="mt-6">
+//       <textarea
+//         value={content}
+//         onChange={(e) => setContent(e.target.value)}
+//       />
+//     </div>
+//   );
+// }
+
+
 function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [name, setName] = useState("");
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [activeFiles, setActiveFiles] = useState<projectFiles>([]);
 
   async function loadProjects() {
     const data = await getProjects();
@@ -64,8 +108,9 @@ function App() {
   }
 
   useEffect(() => {
-    loadProjects();
-  }, []);
+    if (!activeProjectId) return;
+    loadProjectFiles(activeProjectId).then(setActiveFiles);
+  }, [activeProjectId]);
 
   return (
     <div className="p-10 max-w-3xl mx-auto">
@@ -104,6 +149,11 @@ function App() {
       {/* File Editor */}
       {activeProjectId && (
         <FileEditor projectId={activeProjectId} />
+      )}
+
+      {/* Preview */}
+      {activeFiles.length > 0 && (
+        <PreviewPane files={activeFiles} />
       )}
     </div>
   );

@@ -13,6 +13,7 @@
     "@boltyy/shared": "^1.0.0",
     "@tailwindcss/vite": "^4.1.18",
     "@types/dotenv": "^6.1.1",
+    "@webcontainer/api": "^1.6.1",
     "dotenv": "^17.2.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

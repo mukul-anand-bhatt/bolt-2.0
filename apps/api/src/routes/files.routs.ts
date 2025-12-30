@@ -7,6 +7,7 @@ const router = Router();
 router.post("/:projectId", (req, res) => {
     const { projectId } = req.params;
     const { files } = req.body;
+    console.log(files);
 
     if (!Array.isArray(files)) {
         return res.status(400).json({ msg: "invalid files" })
