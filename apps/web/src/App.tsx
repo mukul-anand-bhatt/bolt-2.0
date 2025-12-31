@@ -3,10 +3,11 @@ import { createProject, getProjects } from "./api/projects";
 import { saveProjectFiles, loadProjectFiles } from "./api/files";
 import type { Project, ProjectFiles, projectFile } from "@boltyy/shared";
 import { PreviewPane } from "./components/previewPane";
+import { buildProject } from "./build/buildProject";
 
 
 
-function FileEditor({ projectId, onFileSaved }: { projectId: string; onFileSaved: () => void }) {
+function FileEditor({ projectId, onFileSaved, onPublish }: { projectId: string; onFileSaved: () => void; onPublish: () => void }) {
   const [content, setContent] = useState("");
 
   useEffect(() => {
@@ -30,6 +31,8 @@ function FileEditor({ projectId, onFileSaved }: { projectId: string; onFileSaved
     alert("Files saved");
   }
 
+
+
   return (
     <div className="mt-6">
       <h2 className="font-semibold mb-2">src/App.tsx</h2>
@@ -46,48 +49,16 @@ function FileEditor({ projectId, onFileSaved }: { projectId: string; onFileSaved
       >
         Save Files
       </button>
+
+      <button
+        onClick={onPublish}
+        className="mt-2 "
+      >
+        Publish(Local)
+      </button>
     </div>
   );
 }
-
-// function FileEditor({ projectId }: { projectId: string }) {
-//   const [content, setContent] = useState("");
-
-//   useEffect(() => {
-//     loadProjectFiles(projectId).then((files) => {
-//       if (!Array.isArray(files)) {
-//         console.error("Expected array, got:", files);
-//         return;
-//       }
-
-//       const appFile = files.find(
-//         (f) => f.path === "src/App.tsx"
-//       );
-
-//       if (appFile) setContent(appFile.content);
-//     });
-//   }, [projectId]);
-
-//   async function save() {
-//     const files: ProjectFiles= [
-//       {
-//         path: "src/App.tsx",
-//         content,
-//       },
-//     ];
-
-//     await saveProjectFiles(projectId, files);
-//   }
-
-//   return (
-//     <div className="mt-6">
-//       <textarea
-//         value={content}
-//         onChange={(e) => setContent(e.target.value)}
-//       />
-//     </div>
-//   );
-// }
 
 
 function App() {
@@ -152,6 +123,11 @@ function App() {
         <FileEditor
           projectId={activeProjectId}
           onFileSaved={() => loadProjectFiles(activeProjectId).then(setActiveFiles)}
+          onPublish={async () => {
+            if (!activeFiles.length) return;
+            const { url } = await buildProject(activeFiles);
+            window.open(url, "_blank");
+          }}
         />
       )}
 
