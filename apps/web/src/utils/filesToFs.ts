@@ -1,4 +1,4 @@
-import type { projectFiles } from "@boltyy/shared";
+import type { ProjectFiles } from "@boltyy/shared";
 import type { FileSystemTree } from "@webcontainer/api";
 
 export function filesToFs(files: projectFiles): FileSystemTree {

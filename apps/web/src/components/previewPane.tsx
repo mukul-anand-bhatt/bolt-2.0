@@ -1,59 +1,32 @@
 import { useEffect, useRef, useState } from "react";
 import { getWebContainer } from "../webContainer";
-import { filesToFs } from "../utils/filesToFs";
-import type { projectFiles } from "@boltyy/shared";
+import type { ProjectFiles } from "@boltyy/shared";
+import { WebContainer } from "@webcontainer/api";
 
-export function PreviewPane({ files }: { files: projectFiles }) {
-    const iframeRef = useRef<HTMLIFrameElement>(null);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        async function start() {
-            setLoading(true);
-
-            const container = await getWebContainer();
-
-            const filesWithEntry = [...files];
-            if (!filesWithEntry.find(f => f.path === "src/main.tsx")) {
-                filesWithEntry.push({
-                    path: "src/main.tsx",
-                    content: `
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App'
-
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
-`
-                });
-            }
-
-            await container.mount({
-                "package.json": {
-                    file: {
-                        contents: JSON.stringify({
-                            name: "preview",
-                            private: true,
-                            scripts: {
-                                dev: "vite --host",
-                            },
-                            dependencies: {
-                                react: "^18.2.0",
-                                "react-dom": "^18.2.0",
-                            },
-                            devDependencies: {
-                                vite: "^5.0.0",
-                                "@vitejs/plugin-react": "^4.0.0",
-                            },
-                        }),
-                    },
+const BASE_FILES = {
+    "package.json": {
+        file: {
+            contents: JSON.stringify({
+                name: "preview",
+                private: true,
+                scripts: { dev: "vite --host" },
+                dependencies: {
+                    react: "^18.2.0",
+                    "react-dom": "^18.2.0",
                 },
-                "vite.config.ts": {
-                    file: {
-                        contents: `
+                devDependencies: {
+                    vite: "^5.0.0",
+                    "@vitejs/plugin-react": "^4.0.0",
+                    "@types/react": "^18.2.0",
+                    "@types/react-dom": "^18.2.0"
+                }
+
+            }),
+        },
+    },
+    "vite.config.ts": {
+        file: {
+            contents: `
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
@@ -61,11 +34,11 @@ export default defineConfig({
   plugins: [react()],
 });
 `,
-                    },
-                },
-                "index.html": {
-                    file: {
-                        contents: `
+        },
+    },
+    "index.html": {
+        file: {
+            contents: `
 <!doctype html>
 <html>
   <body>
@@ -74,25 +47,72 @@ export default defineConfig({
   </body>
 </html>
 `,
-                    },
-                },
-                ...filesToFs(filesWithEntry),
-            });
+        },
+    },
+};
 
-            const install = await container.spawn("npm", ["install"]);
-            await install.exit;
+export function PreviewPane({ files }: { files: ProjectFiles }) {
+    const iframeRef = useRef<HTMLIFrameElement>(null);
+    const [loading, setLoading] = useState(false);
+    const containerRef = useRef<WebContainer | null>(null);
+    const hasInjectedMainRef = useRef(false);
+    const lastFilesRef = useRef<Record<string, string>>({});
+    const devProcessRef = useRef<any>(null);
 
-            const dev = await container.spawn("npm", ["run", "dev"]);
+    useEffect(() => {
+        async function run() {
+            setLoading(true);
 
-            container.on("server-ready", (port, url) => {
-                if (iframeRef.current) {
-                    iframeRef.current.src = url;
+            // BOOTSTRAP (once)
+            if (!containerRef.current) {
+                const container = await getWebContainer();
+                containerRef.current = container;
+
+                await container.mount(BASE_FILES);
+
+                const install = await container.spawn("npm", ["install"]);
+                await install.exit;
+
+                devProcessRef.current = await container.spawn("npm", ["run", "dev"]);
+
+                container.on("server-ready", (_, url) => {
+                    if (iframeRef.current) iframeRef.current.src = url;
+                    setLoading(false);
+                });
+            }
+
+            const container = containerRef.current!;
+
+            // PATCH FILES (diffed)
+            await container.fs.mkdir("src", { recursive: true });
+
+            for (const file of files) {
+                const prev = lastFilesRef.current[file.path];
+                if (prev !== file.content) {
+                    await container.fs.writeFile(file.path, file.content);
+                    lastFilesRef.current[file.path] = file.content;
                 }
-                setLoading(false);
-            });
+            }
+
+            // Ensure entry file (ONCE)
+            if (!hasInjectedMainRef.current) {
+                await container.fs.writeFile(
+                    "src/main.tsx",
+                    `
+                        import React from 'react'
+                        import ReactDOM from 'react-dom/client'
+                        import App from './App'
+
+                        ReactDOM.createRoot(document.getElementById('root')!).render(<App />)
+                    `
+                );
+                hasInjectedMainRef.current = true;
+            }
+
+            setLoading(false);
         }
 
-        start();
+        run();
     }, [files]);
 
     return (

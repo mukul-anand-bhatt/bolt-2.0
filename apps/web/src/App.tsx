@@ -1,31 +1,32 @@
 import { useEffect, useState } from "react";
 import { createProject, getProjects } from "./api/projects";
 import { saveProjectFiles, loadProjectFiles } from "./api/files";
-import type { Project, projectFiles } from "@boltyy/shared";
+import type { Project, ProjectFiles, projectFile } from "@boltyy/shared";
 import { PreviewPane } from "./components/previewPane";
 
 
 
-function FileEditor({ projectId }: { projectId: string }) {
+function FileEditor({ projectId, onFileSaved }: { projectId: string; onFileSaved: () => void }) {
   const [content, setContent] = useState("");
 
   useEffect(() => {
     loadProjectFiles(projectId).then((files) => {
       const appFile = files.find(
-        (f) => f.path === "src/App.tsx"
+        (f: projectFile) => f.path === "src/App.tsx"
       );
       if (appFile) setContent(appFile.content);
     });
   }, [projectId]);
 
   async function save() {
-    const files: projectFiles = [
+    const files: ProjectFiles = [
       {
         path: "src/App.tsx",
         content,
       },
     ];
     await saveProjectFiles(projectId, files);
+    onFileSaved();
     alert("Files saved");
   }
 
@@ -68,7 +69,7 @@ function FileEditor({ projectId }: { projectId: string }) {
 //   }, [projectId]);
 
 //   async function save() {
-//     const files: projectFiles = [
+//     const files: ProjectFiles= [
 //       {
 //         path: "src/App.tsx",
 //         content,
@@ -93,7 +94,7 @@ function App() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [name, setName] = useState("");
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [activeFiles, setActiveFiles] = useState<projectFiles>([]);
+  const [activeFiles, setActiveFiles] = useState<ProjectFiles>([]);
 
   async function loadProjects() {
     const data = await getProjects();
@@ -148,7 +149,10 @@ function App() {
 
       {/* File Editor */}
       {activeProjectId && (
-        <FileEditor projectId={activeProjectId} />
+        <FileEditor
+          projectId={activeProjectId}
+          onFileSaved={() => loadProjectFiles(activeProjectId).then(setActiveFiles)}
+        />
       )}
 
       {/* Preview */}

@@ -26,6 +26,6 @@ export type projectFile = {
     content: string,
 }
 
-export type projectFiles = projectFile[]
+export type ProjectFiles = projectFile[]
 
 
