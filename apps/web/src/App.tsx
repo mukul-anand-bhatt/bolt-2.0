@@ -3,8 +3,8 @@ import { createProject, getProjects } from "./api/projects";
 import { saveProjectFiles, loadProjectFiles } from "./api/files";
 import type { Project, ProjectFiles, projectFile } from "@boltyy/shared";
 import { PreviewPane } from "./components/previewPane";
-import { buildProject } from "./build/buildProject";
 
+import { publish } from "./api/publish";
 
 
 function FileEditor({ projectId, onFileSaved, onPublish }: { projectId: string; onFileSaved: () => void; onPublish: () => void }) {
@@ -51,8 +51,11 @@ function FileEditor({ projectId, onFileSaved, onPublish }: { projectId: string; 
       </button>
 
       <button
-        onClick={onPublish}
-        className="mt-2 "
+        onClick={async () => {
+          await save();
+          onPublish();
+        }}
+        className="mt-2"
       >
         Publish(Local)
       </button>
@@ -124,9 +127,7 @@ function App() {
           projectId={activeProjectId}
           onFileSaved={() => loadProjectFiles(activeProjectId).then(setActiveFiles)}
           onPublish={async () => {
-            if (!activeFiles.length) return;
-            const { url } = await buildProject(activeFiles);
-            window.open(url, "_blank");
+            await publish(activeProjectId);
           }}
         />
       )}

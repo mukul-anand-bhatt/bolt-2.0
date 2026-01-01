@@ -1,7 +1,7 @@
 import type { ProjectFiles } from "@boltyy/shared";
 import type { FileSystemTree } from "@webcontainer/api";
 
-export function filesToFs(files: projectFiles): FileSystemTree {
+export function filesToFs(files: ProjectFiles): FileSystemTree {
     const root: FileSystemTree = {};
 
     for (const file of files) {
