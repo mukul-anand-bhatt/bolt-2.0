@@ -1,9 +1,9 @@
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
-import { s3 } from "./aws";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import mime from "mime-types";
 import fs from "fs";
 import path from "path";
+import { s3 } from "./s3";
 
 const BUCKET = process.env.S3_BUCKET!;
 
@@ -14,12 +14,10 @@ export async function uploadDirectoryToS3(
     const files = walk(distPath);
 
     for (const file of files) {
-        // const fileStream = fs.createReadStream(file.fullPath);
-        // const contentType = mime.lookup(file.relativePath) || "application/octet-stream";
-
         const key = `projects/${projectId}/${file.relativePath.replace(/\\/g, "/")}`;
-        console.log("uploading", key);
-        // console.log("s3-->", s3)
+
+        console.log("Uploading:", key);
+
         const upload = new Upload({
             client: s3,
             params: {
@@ -36,7 +34,7 @@ export async function uploadDirectoryToS3(
 
 function walk(dir: string, base = dir): {
     fullPath: string;
-    relativePath: string
+    relativePath: string;
 }[] {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
     const files: any[] = [];
@@ -52,5 +50,6 @@ function walk(dir: string, base = dir): {
             });
         }
     }
+
     return files;
 }
