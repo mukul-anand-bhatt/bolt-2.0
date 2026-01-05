@@ -29,3 +29,12 @@ export type projectFile = {
 export type ProjectFiles = projectFile[]
 
 
+
+type GeneratedFile = {
+    path: string;     // relative path
+    content: string;  // full file content
+};
+
+export type GeneratedFiles = GeneratedFile[]
+
+
