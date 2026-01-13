@@ -2,34 +2,34 @@
 import Colors from "@/data/Colors";
 import Lookup from "@/data/Lookup";
 import { ArrowRight } from "lucide-react";
-import {Link} from "lucide-react";
-import React, {useState} from "react";
+import { Link } from "lucide-react";
+import React, { useState } from "react";
 import { MessageContext } from "@/context/MessagesContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
+import SignInDialog from "./SignInDialog";
+import {useContext} from 'react'
 
+export default function Hero() {
 
-export default function Hero(){
+  const [userInput, setUserInput] = useState("");
+  const { messages, setMessages } = useContext(MessageContext)
+  const { userDetail, setUserDetail } = useContext(UserDetailContext)
+  const [openDialog, setOpenDialog] = useState(false)
+  const onGenerate = (input) => {
 
-    const [userInput, setUserInput] = useState("");
-    const {messages, setMessages} = useContext(MessageContext)
-    const {userDetail, setUserDetail} = useContext(UserDetailContext)
-    const [openDialog, setOpenDialog] = useState(false)
-    const onGenerate=(input)=>{
-
-      if (!userDetail?.name)
-      {
-        setOpenDialog(true);
-        return;
-      }
-
-        setMessages({
-          role:'user',
-          content: input
-        })
+    if (!userDetail?.name) {
+      setOpenDialog(true);
+      return;
     }
 
-    return (
-         <div className="flex flex-col items-center mt-36 xl:mt-42 gap-2">
+    setMessages({
+      role: 'user',
+      content: input
+    })
+  }
+
+  return (
+    <div className="flex flex-col items-center mt-36 xl:mt-42 gap-2">
       <h2 className="font-bold text-4xl">{Lookup.HERO_HEADING}</h2>
       <p className="text-gray-400 font-medium">{Lookup.HERO_DESC}</p>
       <div
@@ -67,7 +67,7 @@ export default function Hero(){
           </h2>
         ))}
       </div>
-
+        <SignInDialog openDialog={openDialog} closeDialog={(v)=>setOpenDialog(v)}/>
     </div>
-    )
+  )
 }
