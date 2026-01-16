@@ -7,25 +7,48 @@ import React, { useState } from "react";
 import { MessageContext } from "@/context/MessagesContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import SignInDialog from "./SignInDialog";
-import {useContext} from 'react'
+import { useContext } from 'react'
+import axios from "axios";
+import { useRouter } from "next/navigation";
+
+
+
 
 export default function Hero() {
 
   const [userInput, setUserInput] = useState("");
   const { messages, setMessages } = useContext(MessageContext)
   const { userDetail, setUserDetail } = useContext(UserDetailContext)
+  const router = useRouter(); // [Fix] Move hook to top level
   const [openDialog, setOpenDialog] = useState(false)
-  const onGenerate = (input) => {
 
+  const onGenerate = async (input) => {
     if (!userDetail?.name) {
       setOpenDialog(true);
       return;
     }
 
-    setMessages({
+    const msg = {
       role: 'user',
       content: input
-    })
+    };
+
+    setMessages(msg);
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/workspace`, {
+        user: userDetail?.email,
+        messages: JSON.stringify([msg])
+      });
+      console.log('Workspace created:', response.data);
+
+      // [Fix] Use the ID from the first response
+      if (response.data && response.data.id) {
+        router.push(`/workspace/${response.data.id}`);
+      }
+    } catch (error) {
+      console.error("Error creating workspace:", error);
+    }
   }
 
   return (
@@ -43,6 +66,12 @@ export default function Hero() {
             placeholder={Lookup.INPUT_PLACEHOLDER}
             className="outline-none bg-transparent w-full h-32 max-h-56 resize-none"
             onChange={(event) => setUserInput(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault(); // Prevent newline
+                if (userInput) onGenerate(userInput);
+              }
+            }}
           />
           {userInput && (
             <ArrowRight
@@ -67,7 +96,7 @@ export default function Hero() {
           </h2>
         ))}
       </div>
-        <SignInDialog openDialog={openDialog} closeDialog={(v)=>setOpenDialog(v)}/>
+      <SignInDialog openDialog={openDialog} closeDialog={(v) => setOpenDialog(v)} />
     </div>
   )
 }

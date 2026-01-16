@@ -7,3 +7,12 @@ export const users = pgTable("users", {
     picture: varchar("picture"),
     createdAt: timestamp("created_at").defaultNow(),
 });
+
+
+export const workspaces = pgTable("Workspaces", {
+    id: serial("id").primaryKey(),
+    messages: varchar("messages").notNull(),
+    fileData: varchar("fileData"),
+    user: varchar("user").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+})

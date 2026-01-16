@@ -34,5 +34,31 @@ router.post("/", async (req, res) => {
     }
 });
 
+router.get('/', async (req, res) => {
+    try {
+        const { email } = req.query;
+
+        // [Refactor] Validation - Fail Fast
+        // Why: We prevent unnecessary database calls if the required 'email' is missing.
+        if (!email) {
+            res.status(400).json({ error: "Email is required" });
+            return;
+        }
+
+        const user = await db.select().from(users).where(eq(users.email, email as string));
+
+        // [Refactor] Data Structure
+        // Why: The frontend expects a single user entity, not a list. 
+        // Returning user[0] aligns the API contract with the 'logic' of fetching "a user".
+        if (user?.length > 0) {
+            res.json(user[0]);
+        } else {
+            res.status(404).json({ error: "User not found" });
+        }
+    }
+    catch (err) {
+        res.status(500).json({ error: "Failed to get user" });
+    }
+})
 
 export default router;

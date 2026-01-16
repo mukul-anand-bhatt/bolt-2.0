@@ -5,7 +5,6 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog"
 import Lookup from '@/data/Lookup'
 import { Button } from '../ui/button'
@@ -45,6 +44,14 @@ function SignInDialog({ openDialog, closeDialog }) {
             );
 
             console.log(userInfo);
+
+            // [Fix] Persistence
+            // Why: We must save the user to localStorage so that on page refresh, 
+            // the Provider's IsAuthenticated function can read it and restore the session.
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('user', JSON.stringify(userInfo?.data));
+            }
+
             await CreateUser(userInfo?.data);
             setUserDetail(userInfo?.data);
             closeDialog(false);
