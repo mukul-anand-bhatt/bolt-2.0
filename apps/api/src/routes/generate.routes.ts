@@ -15,23 +15,21 @@ router.post("/", async (req, res) => {
     }
 
     try {
-        // 1. Generate raw output from AI
         const raw = await generateFromPrompt(prompt);
 
         if (!raw) {
             throw new Error("Empty AI response");
         }
 
-        // 2. Parse JSON
         const files = JSON.parse(raw);
 
-        // 3. Validate
+
         validateGeneratedFiles(files);
 
-        // 4. Save files (THIS plugs into your existing system)
+
         saveFiles(projectId, files);
 
-        // 5. Return files to frontend
+
         res.json({ files });
     } catch (err: any) {
         console.error("AI generation failed:", err.message);
