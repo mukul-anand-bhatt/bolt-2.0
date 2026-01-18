@@ -6,6 +6,7 @@ import generateRoutes from "./generate.routes"
 import workspaceRoutes from "./workspace.routes"
 import userRoutes from "./user.routes"
 import messageRoutes from "./message.routes"
+import chatRoutes from "./chat.routes"
 
 const app = express();
 
@@ -16,5 +17,6 @@ app.use("/generate", generateRoutes)
 app.use("/user", userRoutes)
 app.use("/workspace", workspaceRoutes)
 app.use("/messages", messageRoutes)
+app.use("/chat", chatRoutes)
 
 export default app;

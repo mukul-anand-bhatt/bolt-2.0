@@ -32,9 +32,33 @@ const ChatView = () => {
             console.error("Error fetching messages:", error);
         }
     }
+
+    const onGenerate = async (input) => {
+        if (!input) return;
+
+        try {
+            // Optimistic update
+            const userMsg = { role: 'user', content: input };
+            setMessages(prev => [...(Array.isArray(prev) ? prev : []), userMsg]);
+            setUserInput('');
+
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/chat`, {
+                workspaceId: id,
+                message: input
+            });
+
+            const aiMsg = { role: 'ai', content: response.data.result };
+            setMessages(prev => [...(Array.isArray(prev) ? prev : []), aiMsg]);
+            setUserInput('');
+
+        } catch (error) {
+            console.error("Error generating response:", error);
+        }
+    }
+
     return (
         <div className='relative h-[85vh] flex flex-col gap-5'>
-            <div className='flex-1 overflow-y-scroll'>
+            <div className='flex-1 overflow-y-scroll scrollbar-hide'>
 
                 {messages?.map((msg, index) => (
                     <div key={index}
@@ -64,6 +88,7 @@ const ChatView = () => {
                     <textarea
                         placeholder={Lookup.INPUT_PLACEHOLDER}
                         className="outline-none bg-transparent w-full h-32 max-h-56 resize-none"
+                        value={userInput}
                         onChange={(event) => setUserInput(event.target.value)}
                         onKeyDown={(event) => {
                             if (event.key === 'Enter' && !event.shiftKey) {

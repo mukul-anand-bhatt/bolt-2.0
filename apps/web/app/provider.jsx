@@ -8,7 +8,7 @@ import { UserDetailContext } from "@/context/UserDetailContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import axios from "axios";
 function Provider({ children }) {
-    const [messages, setMessages] = useState();
+    const [messages, setMessages] = useState([]);
     const [userDetail, setUserDetail] = useState();
 
     useEffect(() => {
