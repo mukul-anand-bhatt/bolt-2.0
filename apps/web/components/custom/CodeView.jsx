@@ -1,8 +1,21 @@
 import React from 'react'
+import {
+    SandpackProvider,
+    SandpackLayout,
+    SandpackCodeEditor,
+    SandpackPreview,
+} from "@codesandbox/sandpack-react";
 
 const CodeView = () => {
     return (
-        <div>CodeView</div>
+        <div>
+            <SandpackProvider template="react" theme={"dark"}>
+                <SandpackLayout>
+                    <SandpackCodeEditor />
+                    <SandpackPreview />
+                </SandpackLayout>
+            </SandpackProvider>
+        </div>
     )
 }
 

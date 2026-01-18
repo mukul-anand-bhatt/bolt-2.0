@@ -12,6 +12,7 @@ import Image from 'next/image'
 import Lookup from '@/data/Lookup'
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 
 const ChatView = () => {
 
@@ -73,7 +74,9 @@ const ChatView = () => {
                                 className='rounded-full'
                             />
                         }
-                        <h2>{msg.content}</h2>
+                        <div className='text-white flex flex-col'>
+                            <ReactMarkdown >{msg.content}</ReactMarkdown>
+                        </div>
                     </div>
                 ))}
             </div>
