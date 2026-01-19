@@ -61,7 +61,7 @@ const ChatView = () => {
         <div className='relative h-[85vh] flex flex-col gap-5'>
             <div className='flex-1 overflow-y-scroll scrollbar-hide'>
 
-                {messages?.map((msg, index) => (
+                {Array.isArray(messages) && messages?.map((msg, index) => (
                     <div key={index}
                         className='p-3 rounded-lg mb-2 flex gap-2 items-start'
                         style={{

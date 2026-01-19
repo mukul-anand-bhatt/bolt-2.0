@@ -33,7 +33,7 @@ export default function Hero() {
       content: input
     };
 
-    setMessages(msg);
+    setMessages([msg]);
 
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/workspace`, {
