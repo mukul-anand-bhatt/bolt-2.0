@@ -8,11 +8,18 @@ async function main() {
         apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY,
     });
 
-    const config = {
+    const chatConfig = {
         thinkingConfig: {
             thinkingBudget: -1,
         },
         responseMimeType: 'text/plain',
+    };
+
+    const codeConfig = {
+        thinkingConfig: {
+            thinkingBudget: -1,
+        },
+        responseMimeType: 'application/json',
     };
 
     const model = 'gemini-2.5-pro';
@@ -30,11 +37,21 @@ async function main() {
 
     const response = await ai.models.generateContentStream({
         model,
-        config,
+        chatConfig,
         contents,
     });
 
+    const codeResponse = await ai.models.generateContentStream({
+        model,
+        codeConfig,
+        contents,
+    })
+
     for await (const chunk of response) {
+        console.log(chunk.text);
+    }
+
+    for await (const chunk of codeResponse) {
         console.log(chunk.text);
     }
 }

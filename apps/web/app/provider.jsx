@@ -7,6 +7,8 @@ import { MessageContext } from "@/context/MessagesContext";
 import { UserDetailContext } from "@/context/UserDetailContext";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import axios from "axios";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import AppSidebar from "@/components/custom/AppSidebar";
 function Provider({ children }) {
     const [messages, setMessages] = useState([]);
     const [userDetail, setUserDetail] = useState();
@@ -50,13 +52,18 @@ function Provider({ children }) {
                             enableSystem
                             disableTransitionOnChange
                         >
-                            <Header />
-                            {children}
+                            <SidebarProvider>
+                                <AppSidebar />
+                                <SidebarInset>
+                                    <Header />
+                                    {children}
+                                </SidebarInset>
+                            </SidebarProvider>
                         </NextThemesProvider>
                     </MessageContext.Provider>
                 </UserDetailContext.Provider>
             </GoogleOAuthProvider>
-        </div>
+        </div >
     )
 }
 

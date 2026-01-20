@@ -48,7 +48,7 @@ function CodeView() {
                             <SandpackCodeEditor style={{ height: "80vh" }} />
                         </>
                     ) : (
-                        <SandpackPreview style={{ height: "80vh" }} showNavigator={true} showOpenInCodeSandbox={false} />
+                        <SandpackPreview style={{ height: "80vh" }} showNavigator={true} showOpenInCodeSandbox={false} showRefreshButton={true} />
                     )}
                 </SandpackLayout>
             </SandpackProvider>
