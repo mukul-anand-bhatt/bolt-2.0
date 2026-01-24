@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import Link from 'next/link';
 import {
     Sidebar,
@@ -7,15 +7,28 @@ import {
     SidebarGroup,
     SidebarHeader,
 } from "@/components/ui/sidebar";
-import { MessageCircleCode, PanelLeftClose } from 'lucide-react';
+import { MessageCircleCode, PanelLeftClose, LogOut } from 'lucide-react';
 import WorkspaceHistory from './WorkspaceHistory';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-
 import { useSidebar } from '@/components/ui/sidebar';
+import { UserDetailContext } from '@/context/UserDetailContext';
+import { googleLogout } from '@react-oauth/google';
+import { useRouter } from "next/navigation";
+
 
 function AppSideBar() {
     const { toggleSidebar } = useSidebar();
+    const { userDetail, setUserDetail } = useContext(UserDetailContext);
+    const router = useRouter();
+
+    const onLogout = () => {
+        googleLogout();
+        localStorage.removeItem('user');
+        setUserDetail(null);
+        toggleSidebar();
+        router.push('/');
+    }
 
     return (
         <Sidebar>
@@ -36,7 +49,13 @@ function AppSideBar() {
                 <WorkspaceHistory />
                 <SidebarGroup />
             </SidebarContent>
-            <SidebarFooter />
+            <SidebarFooter>
+                {userDetail && (
+                    <Button onClick={onLogout} variant="ghost" className="w-full justify-start">
+                        <LogOut /> Log Out
+                    </Button>
+                )}
+            </SidebarFooter>
         </Sidebar>
 
     )

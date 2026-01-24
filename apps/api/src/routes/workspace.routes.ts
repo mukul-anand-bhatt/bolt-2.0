@@ -31,21 +31,38 @@ router.post("/", async (req, res) => {
 });
 
 
-router.get("/:userId", async (req, res) => {
+// Get workspace by ID or User Email
+router.get("/:id", async (req, res) => {
     try {
-        const { userId } = req.params;
+        const { id } = req.params;
 
-        // Fetch workspaces for the user
-        const result = await db.select()
-            .from(workspaces)
-            .where(eq(workspaces.user, userId))
-            .orderBy(desc(workspaces.id));
+        if (id.includes("@")) {
+            // It's a User Email -> Fetch list
+            const result = await db.select()
+                .from(workspaces)
+                .where(eq(workspaces.user, id))
+                .orderBy(desc(workspaces.id));
+            res.json(result);
+        } else {
+            // It's a Workspace ID -> Fetch single
+            const workspaceId = Number(id);
+            if (isNaN(workspaceId)) {
+                return res.status(400).json({ error: "Invalid workspace ID" });
+            }
 
+            const result = await db.select()
+                .from(workspaces)
+                .where(eq(workspaces.id, workspaceId));
 
-        res.json(result);
+            if (result.length > 0) {
+                res.json(result[0]);
+            } else {
+                res.status(404).json({ error: "Workspace not found" });
+            }
+        }
     } catch (error) {
-        console.error("Error fetching workspaces:", error);
-        res.status(500).json({ error: "Failed to fetch workspaces" });
+        console.error("Error fetching workspace(s):", error);
+        res.status(500).json({ error: "Failed to fetch workspace data" });
     }
 });
 

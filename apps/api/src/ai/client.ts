@@ -42,3 +42,23 @@ export async function generateChatResponse(message: string) {
 
     return result.response.text();
 }
+
+const customModel = genAI.getGenerativeModel({
+    model: "gemini-2.5-flash",
+});
+
+export async function generateCustom(prompt: string) {
+    const result = await customModel.generateContent({
+        contents: [
+            {
+                role: "user",
+                parts: [{ text: prompt }],
+            },
+        ],
+        generationConfig: {
+            temperature: 0.2,
+        },
+    });
+
+    return result.response.text();
+}

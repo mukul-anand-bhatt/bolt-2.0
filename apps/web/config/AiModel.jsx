@@ -22,7 +22,7 @@ async function main() {
         responseMimeType: 'application/json',
     };
 
-    const model = 'gemini-2.5-pro';
+    const model = 'gemini-3.5-flash-exp';
 
     const contents = [
         {

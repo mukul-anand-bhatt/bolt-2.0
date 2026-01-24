@@ -11,10 +11,34 @@ import axios from 'axios';
 import Lookup from '@/data/Lookup';
 // import { MessagesContext } from '@/contexts/MessagesContext';
 
+import { useParams } from 'next/navigation';
+
 function CodeView() {
-    const [activeTab, setActiveTab] = useState('preview')
+    const { id } = useParams();
+    const [activeTab, setActiveTab] = useState('code')
     const [files, setFiles] = useState(Lookup?.DEFAULT_FILE)
-    // const { messages, setMessages } = useContext(MessagesContext)
+
+    useEffect(() => {
+        if (id) {
+            GetFiles();
+        }
+    }, [id])
+
+    const GetFiles = async () => {
+        try {
+            const result = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_URL}/workspace/${id}`);
+            const generatedFileString = result.data.fileData;
+
+            if (generatedFileString) {
+                const parsedFiles = JSON.parse(generatedFileString).files;
+                setFiles(parsedFiles);
+            } else {
+                setFiles(Lookup.DEFAULT_FILE);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
 
 
     return (
@@ -35,8 +59,21 @@ function CodeView() {
                     </h2>
                 </div>
             </div>
-            <SandpackProvider template="react" theme='dark'
-                files={Lookup.DEFAULT_FILE}
+            <SandpackProvider
+                key={id} // Force re-render when user switches workspace or new code is generated
+                template="react"
+                theme='dark'
+                files={files}
+                customSetup={{
+                    dependencies: {
+                        "lucide-react": "^0.469.0",
+                        "date-fns": "^4.1.0",
+                        "react-chartjs-2": "^5.3.0",
+                        "chart.js": "^4.4.7",
+                        "firebase": "^11.1.0",
+                        "@google/generative-ai": "^0.21.0"
+                    }
+                }}
                 options={{
                     externalResources: ['https://cdn.tailwindcss.com']
                 }}

@@ -7,6 +7,7 @@ import workspaceRoutes from "./workspace.routes"
 import userRoutes from "./user.routes"
 import messageRoutes from "./message.routes"
 import chatRoutes from "./chat.routes"
+import aiCodeRoutes from "./ai-code.routes"
 
 const app = express();
 
@@ -18,5 +19,6 @@ app.use("/user", userRoutes)
 app.use("/workspace", workspaceRoutes)
 app.use("/messages", messageRoutes)
 app.use("/chat", chatRoutes)
+app.use("/gen-code", aiCodeRoutes)
 
 export default app;
