@@ -12,6 +12,19 @@ const nextConfig = {
         hostname: '*.googleusercontent.com' // Cover other google domains just in case
       }
     ]
+  },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups',
+          },
+        ],
+      },
+    ];
   }
 };
 
